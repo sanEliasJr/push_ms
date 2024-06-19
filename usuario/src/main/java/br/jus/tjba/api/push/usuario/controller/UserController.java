@@ -1,16 +1,19 @@
 package br.jus.tjba.api.push.usuario.controller;
 
-import br.jus.tjba.api.push.usuario.dto.LoginDTO;
-import br.jus.tjba.api.push.usuario.dto.UsuarioDTO;
-import br.jus.tjba.api.push.usuario.model.Usuario;
+import br.jus.tjba.api.push.usuario.dto.request.LoginDTO;
+import br.jus.tjba.api.push.usuario.dto.request.UpdateUsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.request.UsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.response.UsuarioReponseDTO;
 import br.jus.tjba.api.push.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Controller
 @RestController
 @RequestMapping("/")
 public class UserController {
@@ -22,23 +25,23 @@ public class UserController {
         return usuarioService.login(loginDTO);
     }
     @GetMapping("/usuarios")
-    public List<Usuario> getUsuarios() {
+    public List<UsuarioReponseDTO> getUsuarios() {
         return usuarioService.getAllUsuarios();
     }
 
     @GetMapping("/usuarios/{id}")
-    public Usuario getUsuario(@PathVariable Long id) {
+    public UsuarioReponseDTO getUsuario(@PathVariable Long id) {
         return usuarioService.getUsuarioById(id);
     }
 
     @PostMapping("/usuarios")
-    public Usuario saveUsuario(@RequestBody @Valid UsuarioDTO usuarioDTO) {
+    public UsuarioReponseDTO saveUsuario(@RequestBody @Valid UsuarioDTO usuarioDTO) {
         return usuarioService.saveUsuario(usuarioDTO);
     }
 
     @PutMapping("/usuarios/{id}")
-    public Usuario updateUsuario(@PathVariable Long id, @RequestBody @Valid UsuarioDTO usuarioDTO) {
-        return usuarioService.updateUsuario(id, usuarioDTO);
+    public UsuarioReponseDTO updateUsuario(@PathVariable Long id, @RequestBody @Valid UpdateUsuarioDTO updateUsuarioDTO) {
+        return usuarioService.updateUsuario(id, updateUsuarioDTO);
     }
 
     @DeleteMapping("/usuarios/{id}")

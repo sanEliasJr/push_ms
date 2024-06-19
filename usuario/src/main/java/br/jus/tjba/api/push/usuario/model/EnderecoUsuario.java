@@ -38,7 +38,7 @@ public class EnderecoUsuario implements Serializable {
     @NotNull
     private String cep;
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false)
     @NotNull
     private Usuario usuario;
 }

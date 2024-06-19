@@ -1,6 +1,6 @@
 package br.jus.tjba.api.push.usuario.service;
 
-import br.jus.tjba.api.push.usuario.dto.UsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.request.UsuarioDTO;
 import br.jus.tjba.api.push.usuario.model.Usuario;
 import br.jus.tjba.api.push.usuario.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;

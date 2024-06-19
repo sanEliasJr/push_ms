@@ -1,9 +1,7 @@
 package br.jus.tjba.api.push.usuario.service;
 
-import br.jus.tjba.api.push.usuario.dto.SistemaDTO;
-import br.jus.tjba.api.push.usuario.dto.UsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.request.SistemaDTO;
 import br.jus.tjba.api.push.usuario.model.Sistema;
-import br.jus.tjba.api.push.usuario.model.Usuario;
 import br.jus.tjba.api.push.usuario.repository.SistemaRepositoy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

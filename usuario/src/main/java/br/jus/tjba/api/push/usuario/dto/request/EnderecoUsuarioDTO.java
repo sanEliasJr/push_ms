@@ -1,4 +1,4 @@
-package br.jus.tjba.api.push.usuario.dto;
+package br.jus.tjba.api.push.usuario.dto.request;
 
 import br.jus.tjba.api.push.usuario.enums.EstadosEnum;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +10,5 @@ public record EnderecoUsuarioDTO(
         @NotBlank String numero,
         @NotBlank String cidade,
         @NotNull EstadosEnum uf,
-        @NotBlank String cep,
-        @NotBlank Long idUsuario) {
+        @NotBlank String cep) {
 }

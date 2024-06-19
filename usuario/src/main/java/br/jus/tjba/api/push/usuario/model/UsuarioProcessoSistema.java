@@ -26,11 +26,11 @@ public class UsuarioProcessoSistema implements Serializable {
     @NotNull
     private String numeroProcesso;
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false)
     @NotNull
     private Usuario usuario;
     @ManyToOne
-    @JoinColumn(name = "sistema_id")
+    @JoinColumn(name = "sistema_id", nullable = false)
     @NotNull
     private Sistema sistema;
 }
