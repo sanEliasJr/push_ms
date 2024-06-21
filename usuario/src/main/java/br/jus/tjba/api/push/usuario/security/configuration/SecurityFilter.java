@@ -18,8 +18,8 @@ import java.io.IOException;
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
-    private final UsuarioRepository usuarioRepository;
 
+    private final UsuarioRepository usuarioRepository;
     public SecurityFilter(TokenService tokenService, UsuarioRepository usuarioRepository) {
         this.tokenService = tokenService;
         this.usuarioRepository = usuarioRepository;
@@ -29,6 +29,12 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        if(shouldSkipFilter(request)){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = this.tokenService.recoverToken(request);
 
         try {
@@ -44,5 +50,12 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean shouldSkipFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+
+        return uri.startsWith("/swagger-ui/") || method.equalsIgnoreCase("OPTIONS");
     }
 }

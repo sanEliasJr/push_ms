@@ -30,7 +30,8 @@ public class SecurityConfigurations {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.DELETE, "/usuarios/").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/usuarios").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/swagger-ui").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
