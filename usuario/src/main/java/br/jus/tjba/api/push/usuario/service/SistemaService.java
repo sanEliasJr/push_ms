@@ -1,8 +1,8 @@
 package br.jus.tjba.api.push.usuario.service;
 
-import br.jus.tjba.api.push.usuario.dto.request.SistemaDTO;
 import br.jus.tjba.api.push.usuario.model.Sistema;
 import br.jus.tjba.api.push.usuario.repository.SistemaRepositoy;
+import br.jus.tjba.api.push.usuario.repository.UsuarioProcessoSistemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +15,7 @@ public class SistemaService {
         return sistemaRepositoy.findById(id).orElse(null);
     }
 
-    public Sistema saveSistema(SistemaDTO sistemaDTO){
-        Sistema sistema = Sistema.builder()
-                .sigla(sistemaDTO.sigla())
-                .build();
-
-        return sistemaRepositoy.save(sistema);
-    }
-
-    public void deleteSistema(Long id){
-        sistemaRepositoy.deleteById(id);
+    public Sistema findSistemaBySigla(String sigla) {
+        return sistemaRepositoy.findBySigla(sigla).orElse(null);
     }
 }

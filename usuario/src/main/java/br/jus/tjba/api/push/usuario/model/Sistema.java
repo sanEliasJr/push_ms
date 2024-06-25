@@ -25,6 +25,5 @@ public class Sistema implements Serializable {
     @SequenceGenerator(name = "client.tb_sistema_id_seq", sequenceName = "client.tb_sistema_id_seq", allocationSize = 1)
     private Long id;
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private SiglaEnum sigla;
+    private String sigla;
 }

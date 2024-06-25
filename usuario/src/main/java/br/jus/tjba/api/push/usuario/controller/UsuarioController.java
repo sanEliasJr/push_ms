@@ -1,32 +1,32 @@
 package br.jus.tjba.api.push.usuario.controller;
 
-import br.jus.tjba.api.push.usuario.dto.request.LoginDTO;
-import br.jus.tjba.api.push.usuario.dto.request.UpdateUsuarioDTO;
-import br.jus.tjba.api.push.usuario.dto.request.UsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.request.*;
 import br.jus.tjba.api.push.usuario.dto.response.UsuarioReponseDTO;
 import br.jus.tjba.api.push.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RestController
-@RequestMapping("/")
-public class UserController {
+@RequestMapping()
+public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping()
+    @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Valid LoginDTO loginDTO) {
         return usuarioService.login(loginDTO);
     }
     @GetMapping("/usuarios")
-    public List<UsuarioReponseDTO> getUsuarios() {
-        return usuarioService.getAllUsuarios();
+    public Page<UsuarioReponseDTO> getUsuarios(Pageable pageable) {
+        return usuarioService.getAllUsuarios(pageable);
     }
 
     @GetMapping("/usuarios/{id}")
@@ -49,9 +49,4 @@ public class UserController {
         usuarioService.deleteUsuario(id);
     }
 
-    @PostMapping("/usuarios/associar-processo")
-    public ResponseEntity<String> associarProcesso(@RequestBody @Valid UsuarioDTO usuarioDTO) {
-        return ResponseEntity.ok("Deu certo!");
-
-    }
 }

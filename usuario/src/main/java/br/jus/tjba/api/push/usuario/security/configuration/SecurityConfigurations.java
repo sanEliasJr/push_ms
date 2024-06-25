@@ -32,6 +32,7 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.DELETE, "/usuarios").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/swagger-ui").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/associar-processo").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
