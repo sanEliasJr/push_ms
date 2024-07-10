@@ -9,10 +9,13 @@ import br.jus.tjba.api.push.usuario.model.Sistema;
 import br.jus.tjba.api.push.usuario.model.Usuario;
 import br.jus.tjba.api.push.usuario.model.UsuarioProcessoSistema;
 import br.jus.tjba.api.push.usuario.pub.service.ConvertTokenService;
+import br.jus.tjba.api.push.usuario.pub.service.ResponseService;
 import br.jus.tjba.api.push.usuario.repository.UsuarioProcessoSistemaRepository;
 import br.jus.tjba.api.push.usuario.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,9 +32,11 @@ public class UsuarioProcessoSistemaService {
     private ConvertTokenService convertTokenService;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    ResponseService responseService;
 
     @Transactional
-    public void associarProcessoUsuario(ProcessoSistemaDTO processoSistemaDTO){
+    public ResponseEntity<Object> associarProcessoUsuario(ProcessoSistemaDTO processoSistemaDTO){
         Usuario usuario = convertTokenService.getUsuarioIdFromToken();
         Sistema sistema = sistemaService.findSistemaBySigla(processoSistemaDTO.sistema());
         UsuarioProcessoSistema usuarioProcessoSistema = UsuarioProcessoSistema.builder()
@@ -40,19 +45,23 @@ public class UsuarioProcessoSistemaService {
                 .numeroProcesso(processoSistemaDTO.numeroProcesso())
                 .build();
         usuarioProcessoSistemaRepository.save(usuarioProcessoSistema);
+
+        return responseService.sendMessage("Processo associado!", HttpStatus.CREATED);
     }
 
-    public void desassociarProcessoUsuario(ProcessoSistemaDTO processoSistemaDTO){
+    public ResponseEntity<Object> desassociarProcessoUsuario(ProcessoSistemaDTO processoSistemaDTO){
         Usuario usuario = convertTokenService.getUsuarioIdFromToken();
         Sistema sistema = sistemaService.findSistemaBySigla(processoSistemaDTO.sistema());
         UsuarioProcessoSistema usuarioProcessoSistema = usuarioProcessoSistemaRepository.findUsuarioProcessoSistemaByNumeroProcessoAndUsuarioAndSistema(processoSistemaDTO.numeroProcesso(),sistema.getId(),usuario.getId());
         usuarioProcessoSistemaRepository.delete(usuarioProcessoSistema);
+        return responseService.sendMessage("Processo associado!", HttpStatus.ACCEPTED);
     }
 
     public UsuarioProcessoSistemaResponseDto buscarUsuarioAssociadoProcesso(ProcessoSistemaDTO processoSistemaDTO){
         Sistema sistema = sistemaService.findSistemaBySigla(processoSistemaDTO.sistema());
         List<UsuarioProcessoSistema> usuarioProcessoSistema = usuarioProcessoSistemaRepository.findUsuarioProcessoSistemaByNumeroProcessoAndSistema(processoSistemaDTO.numeroProcesso(),sistema.getId());
         return !usuarioProcessoSistema.isEmpty() ? converterUsuarioProcessoSistemaEmDtoResponse(usuarioProcessoSistema) : null;
+
     }
 
     private UsuarioProcessoSistemaResponseDto converterUsuarioProcessoSistemaEmDtoResponse (List<UsuarioProcessoSistema> usuarioProcessoSistema){

@@ -11,25 +11,26 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RestController
+@RequestMapping
 public class UsuarioProcessoSistemaController {
     @Autowired
     private UsuarioProcessoSistemaService usuarioProcessoSistemaService;
 
 
     @PostMapping("/usuarios/associar-processo")
-    public ResponseEntity<String> associarProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
+    public ResponseEntity<?> associarProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
         usuarioProcessoSistemaService.associarProcessoUsuario(processoSistemaDTO);
         return ResponseEntity.ok("Deu certo!");
     }
 
     @DeleteMapping("/usuarios/desassociar-processo")
-    public ResponseEntity<String> desasociarProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
+    public ResponseEntity<?> desasociarProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
         usuarioProcessoSistemaService.desassociarProcessoUsuario(processoSistemaDTO);
         return ResponseEntity.ok("Deu certo!");
     }
 
     @PostMapping("/usuarios/buscar-associados-processo")
-    public ResponseEntity<UsuarioProcessoSistemaResponseDto> buscarAssociadosProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
+    public ResponseEntity<?> buscarAssociadosProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
         return ResponseEntity.ok(usuarioProcessoSistemaService.buscarUsuarioAssociadoProcesso(processoSistemaDTO));
     }
 }
