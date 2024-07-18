@@ -5,6 +5,6 @@ import lombok.Builder;
 @Builder
 public record UsuarioCustomReponseDTO(
         Long id,
-        String login
-) {
+        String nome,
+        String login) {
 }

@@ -58,6 +58,7 @@ public class UsuarioService {
     public UsuarioReponseDTO saveUsuario(UsuarioDTO usuarioDTO){
         String senhaCriptografada = new BCryptPasswordEncoder().encode(usuarioDTO.senha());
         Usuario usuario = Usuario.builder().login(usuarioDTO.login())
+                                .nome(usuarioDTO.nome())
                                 .senha(senhaCriptografada)
                                 .cpf(usuarioDTO.cpf())
                                 .build();
@@ -77,6 +78,7 @@ public class UsuarioService {
     public UsuarioReponseDTO updateUsuario(Long id, UpdateUsuarioDTO updateUsuarioDTO){
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
         usuario.setCpf(updateUsuarioDTO.cpf().isBlank() ? usuario.getCpf() : updateUsuarioDTO.cpf());
+        usuario.setNome(updateUsuarioDTO.nome().isBlank() ? usuario.getNome() : updateUsuarioDTO.nome());
         usuario.setLogin(updateUsuarioDTO.login().isBlank() ? usuario.getLogin() : updateUsuarioDTO.login());
         usuario.setSenha(updateUsuarioDTO.senha().isBlank() ? usuario.getSenha() : updateUsuarioDTO.senha());
         usuario.setEnderecos(updateUsuarioDTO.enderecos().isEmpty() ? usuario.getEnderecos() : updateUsuarioDTO.enderecos());
@@ -95,6 +97,7 @@ public class UsuarioService {
     private UsuarioReponseDTO converterUsuarioemDtoRespose(Usuario usuario){
         UsuarioReponseDTO usuarioReponseDTO = UsuarioReponseDTO.builder()
                 .idUsuario(usuario.getId())
+                .nome(usuario.getNome())
                 .login(usuario.getLogin())
                 .senha(usuario.getSenha())
                 .cpf(usuario.getCpf())
@@ -115,6 +118,7 @@ public class UsuarioService {
     public UsuarioCustomReponseDTO converterUsuarioemDtoResponse(Usuario usuario){
         UsuarioCustomReponseDTO usuarioCustomReponseDTO = UsuarioCustomReponseDTO.builder()
                 .id(usuario.getId())
+                .nome(usuario.getNome())
                 .login(usuario.getLogin())
                 .build();
         return usuarioCustomReponseDTO;
