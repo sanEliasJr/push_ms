@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Builder
 public record UsuarioMensagemDTO(
-        UsuarioDTO usuario,
+        String numeroProcesso,
+        String sistema,
+        String email,
+        String nome,
         String mensagem) {
 }

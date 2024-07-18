@@ -9,6 +9,8 @@ import br.jus.tjba.api.push.publicador.repository.RequisicaoPublicarRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ public class PublicarService {
     @Autowired
     private MensagemRepository mensagemRepository;
     @Autowired
-    private AmqpTemplate amqpTemplate;
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     RequisicaoPublicarRepository requisicaoPublicarRespository;
@@ -31,17 +33,26 @@ public class PublicarService {
                         .sistema(sinalizarDTO.sigla())
                         .build());
         for(UsuarioDTO usuario : usuarios.usuarios()){
-            MensagemPendente mensagemPendente = new MensagemPendente();
-            mensagemPendente.setMensagem(sinalizarDTO.mensagem());
-            mensagemPendente.setNumeroProcesso(usuarios.numeroProcesso());
             try{
-                mensagemPendente.setEmail(usuario.login());
-                mensagemPendente.setNome(usuario.nome());
-                amqpTemplate.convertAndSend("sinalizar", mensagemPendente);
+                UsuarioMensagemDTO usuarioMensagemDTO = UsuarioMensagemDTO.builder()
+                        .mensagem(sinalizarDTO.mensagem())
+                        .email(usuario.login())
+                        .numeroProcesso(usuarios.numeroProcesso())
+                        .nome(usuario.nome())
+                        .sistema(usuarios.sistema())
+                        .build();
+                rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+                rabbitTemplate.convertAndSend("sinalizar", usuarioMensagemDTO);
             } catch (AmqpException e){
-                mensagemPendente.setEmail(usuario.login());
-                mensagemPendente.setNome(usuario.nome());
-                rabbitMqFallback(mensagemPendente, e);
+                MensagemPendente existeMensagem =  mensagemRepository.findByEmailAndProcessoAndSigla(sinalizarDTO.numeroProcesso(),usuario.login());
+                if(existeMensagem == null){
+                    MensagemPendente mensagemPendente = new MensagemPendente();
+                    mensagemPendente.setMensagem(sinalizarDTO.mensagem());
+                    mensagemPendente.setNumeroProcesso(usuarios.numeroProcesso());
+                    mensagemPendente.setEmail(usuario.login());
+                    mensagemPendente.setNome(usuario.nome());
+                    rabbitMqFallback(mensagemPendente, e);
+                }
             }
         }
         return ResponseEntity.ok().body("Deu certo!");
@@ -57,7 +68,7 @@ public class PublicarService {
         return ResponseEntity.ok().body("Deu certo!");
     }
 
-    private void rabbitMqFallback(MensagemPendente mensagemPendente, Exception e){
+    public void rabbitMqFallback(MensagemPendente mensagemPendente, Exception e){
         mensagemRepository.save(mensagemPendente);
     }
 }
