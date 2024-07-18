@@ -30,6 +30,8 @@ public class Usuario implements Serializable, UserDetails {
     @SequenceGenerator(name = "client.tb_usuario_id_seq", sequenceName = "client.tb_usuario_id_seq", allocationSize = 1)
     private Long id;
     @NotNull
+    private String nome;
+    @NotNull
     private String login;
     @NotNull
     private String senha;

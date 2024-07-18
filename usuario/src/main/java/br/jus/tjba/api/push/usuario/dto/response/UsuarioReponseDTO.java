@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public record UsuarioReponseDTO (
         Long idUsuario,
+        String nome,
         String login,
         String senha,
         String cpf,
