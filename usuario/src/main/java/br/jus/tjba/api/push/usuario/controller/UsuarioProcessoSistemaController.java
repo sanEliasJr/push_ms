@@ -19,8 +19,7 @@ public class UsuarioProcessoSistemaController {
 
     @PostMapping("/usuarios/associar-processo")
     public ResponseEntity<?> associarProcesso(@RequestBody @Valid ProcessoSistemaDTO processoSistemaDTO) {
-        usuarioProcessoSistemaService.associarProcessoUsuario(processoSistemaDTO);
-        return ResponseEntity.ok("Deu certo!");
+        return usuarioProcessoSistemaService.associarProcessoUsuario(processoSistemaDTO);
     }
 
     @DeleteMapping("/usuarios/desassociar-processo")

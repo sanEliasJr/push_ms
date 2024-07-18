@@ -17,36 +17,37 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping()
 public class UsuarioController {
+
     @Autowired
     private UsuarioService usuarioService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
         return usuarioService.login(loginDTO);
     }
     @GetMapping("/usuarios")
-    public Page<UsuarioReponseDTO> getUsuarios(Pageable pageable) {
+    public ResponseEntity<Page<UsuarioReponseDTO>> getUsuarios(Pageable pageable) {
         return usuarioService.getAllUsuarios(pageable);
     }
 
     @GetMapping("/usuarios/{id}")
-    public UsuarioReponseDTO getUsuario(@PathVariable Long id) {
+    public ResponseEntity<?> getUsuario(@PathVariable Long id) {
         return usuarioService.getUsuarioById(id);
     }
 
     @PostMapping("/usuarios")
-    public UsuarioReponseDTO saveUsuario(@RequestBody @Valid UsuarioDTO usuarioDTO) {
+    public ResponseEntity<?> saveUsuario(@RequestBody @Valid UsuarioDTO usuarioDTO) {
         return usuarioService.saveUsuario(usuarioDTO);
     }
 
     @PutMapping("/usuarios/{id}")
-    public UsuarioReponseDTO updateUsuario(@PathVariable Long id, @RequestBody @Valid UpdateUsuarioDTO updateUsuarioDTO) {
+    public ResponseEntity<?> updateUsuario(@PathVariable Long id, @RequestBody @Valid UpdateUsuarioDTO updateUsuarioDTO) {
         return usuarioService.updateUsuario(id, updateUsuarioDTO);
     }
 
     @DeleteMapping("/usuarios/{id}")
-    public void deleteUsuario(@PathVariable Long id) {
-        usuarioService.deleteUsuario(id);
+    public ResponseEntity<?> deleteUsuario(@PathVariable Long id) {
+        return usuarioService.deleteUsuario(id);
     }
 
 }

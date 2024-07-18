@@ -2,12 +2,15 @@ package br.jus.tjba.api.push.usuario.service;
 
 import br.jus.tjba.api.push.usuario.dto.request.*;
 import br.jus.tjba.api.push.usuario.dto.local.PersisteEnderecoUsuarioDTO;
+import br.jus.tjba.api.push.usuario.dto.response.AcessoResponseDTO;
 import br.jus.tjba.api.push.usuario.dto.response.UsuarioCustomReponseDTO;
 import br.jus.tjba.api.push.usuario.dto.response.UsuarioReponseDTO;
 import br.jus.tjba.api.push.usuario.model.Sistema;
 import br.jus.tjba.api.push.usuario.model.Usuario;
 import br.jus.tjba.api.push.usuario.model.UsuarioProcessoSistema;
+import br.jus.tjba.api.push.usuario.pub.exceptions.NegocioException;
 import br.jus.tjba.api.push.usuario.pub.service.ConvertTokenService;
+import br.jus.tjba.api.push.usuario.pub.service.ResponseService;
 import br.jus.tjba.api.push.usuario.repository.UsuarioRepository;
 import br.jus.tjba.api.push.usuario.security.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +18,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,22 +45,15 @@ public class UsuarioService {
 
 
 
-    public UsuarioReponseDTO getUsuarioById(Long id){
+    public ResponseEntity<Object> getUsuarioById(Long id){
         if (usuarioRepository.existsById(id)) {
-            return converterUsuarioemDtoRespose(usuarioRepository.findById(id).get());
+            return ResponseEntity.ok().body(converterUsuarioemDtoRespose(usuarioRepository.findById(id).get()));
         }
-        return null;
-    }
-
-    public Usuario getUsuarioByID(Long id){
-        if (usuarioRepository.existsById(id)) {
-            return usuarioRepository.findById(id).orElse(null);
-        }
-        return null;
+        throw  new NegocioException("Usuario nao encontrado!");
     }
 
     @Transactional
-    public UsuarioReponseDTO saveUsuario(UsuarioDTO usuarioDTO){
+    public ResponseEntity<Object> saveUsuario(UsuarioDTO usuarioDTO){
         String senhaCriptografada = new BCryptPasswordEncoder().encode(usuarioDTO.senha());
         Usuario usuario = Usuario.builder().login(usuarioDTO.login())
                                 .nome(usuarioDTO.nome())
@@ -64,33 +62,44 @@ public class UsuarioService {
                                 .build();
         PersisteEnderecoUsuarioDTO persisteEnderecoUsuarioDTO = new PersisteEnderecoUsuarioDTO(usuarioDTO.enderecos(),usuario);
         usuario.setEnderecos(enderecoUsuarioService.criaListaEnderecoUsuario(persisteEnderecoUsuarioDTO));
-        return converterUsuarioemDtoRespose(usuarioRepository.save(usuario));
+        return ResponseEntity.accepted().body(converterUsuarioemDtoRespose(usuarioRepository.save(usuario)));
     }
 
-    public void deleteUsuario(Long id){
+    public ResponseEntity<Object> deleteUsuario(Long id){
         usuarioRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    public Page<UsuarioReponseDTO> getAllUsuarios(Pageable pageable){
-        return usuarioRepository.findAll(pageable).map(this::converterUsuarioemDtoRespose);
+    public ResponseEntity<Page<UsuarioReponseDTO>> getAllUsuarios(Pageable pageable){
+        return ResponseEntity.ok().body(usuarioRepository.findAll(pageable).map(this::converterUsuarioemDtoRespose));
     }
-
-    public UsuarioReponseDTO updateUsuario(Long id, UpdateUsuarioDTO updateUsuarioDTO){
+    @Transactional
+    public ResponseEntity<Object> updateUsuario(Long id, UpdateUsuarioDTO updateUsuarioDTO){
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
-        usuario.setCpf(updateUsuarioDTO.cpf().isBlank() ? usuario.getCpf() : updateUsuarioDTO.cpf());
-        usuario.setNome(updateUsuarioDTO.nome().isBlank() ? usuario.getNome() : updateUsuarioDTO.nome());
-        usuario.setLogin(updateUsuarioDTO.login().isBlank() ? usuario.getLogin() : updateUsuarioDTO.login());
-        usuario.setSenha(updateUsuarioDTO.senha().isBlank() ? usuario.getSenha() : updateUsuarioDTO.senha());
-        usuario.setEnderecos(updateUsuarioDTO.enderecos().isEmpty() ? usuario.getEnderecos() : updateUsuarioDTO.enderecos());
-        return converterUsuarioemDtoRespose(usuarioRepository.save(usuario));
+        if (usuario == null) {
+            throw new NegocioException("Usuario não encontrado!");
+        }
+        usuario.setCpf(updateUsuarioDTO.cpf());
+        usuario.setNome(updateUsuarioDTO.nome());
+        usuario.setLogin(updateUsuarioDTO.login());
+        usuario.setSenha(updateUsuarioDTO.senha());
+        usuario.setEnderecos(updateUsuarioDTO.enderecos());
+        return ResponseEntity.accepted().body(converterUsuarioemDtoRespose(usuarioRepository.save(usuario)));
     };
 
-    public ResponseEntity<String> login(LoginDTO loginDTO) {
+    public ResponseEntity<Object> login(LoginDTO loginDTO) {
         Usuario usuario = usuarioRepository.findUsuarioByLogin(loginDTO.login());
+        if(usuario == null) {
+            throw new NegocioException("Usuario não Encontrado");
+        }
         var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getId(), loginDTO.senha());
-        Authentication authentication = this.authenticationManager.authenticate(usernamePassword);
-        String token = tokenService.generateToken((Usuario) authentication.getPrincipal());
-        return ResponseEntity.accepted().body(token);
+        try{
+            Authentication authentication = this.authenticationManager.authenticate(usernamePassword);
+            String token = tokenService.generateToken((Usuario) authentication.getPrincipal());
+            return ResponseEntity.accepted().body(AcessoResponseDTO.builder().token(token).build());
+        } catch (BadCredentialsException e) {
+            throw new NegocioException("Senha incorreta");
+        }
     }
 
 

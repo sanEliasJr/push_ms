@@ -56,6 +56,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        return uri.startsWith("/swagger-ui/") || method.equalsIgnoreCase("OPTIONS");
+        return uri.startsWith("/usuario/swagger-ui/index.html") || method.equalsIgnoreCase("OPTIONS");
     }
 }
